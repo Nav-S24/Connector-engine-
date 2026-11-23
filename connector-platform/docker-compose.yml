@@ -1,0 +1,51 @@
+services:
+  mock-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      PAYSTUB_API_KEY: ${PAYSTUB_API_KEY:-paystub-test-key}
+      GITLIKE_TOKEN: ${GITLIKE_TOKEN:-gitlike-test-token}
+      SHEETSY_CLIENT_ID: ${SHEETSY_CLIENT_ID:-sheetsy-client-id}
+      SHEETSY_CLIENT_SECRET: ${SHEETSY_CLIENT_SECRET:-sheetsy-client-secret}
+      SHEETSY_REFRESH_TOKEN: ${SHEETSY_REFRESH_TOKEN:-sheetsy-refresh-token}
+      MOCK_LATENCY_MS: ${MOCK_LATENCY_MS:-0}
+      MOCK_RATE_429: ${MOCK_RATE_429:-0}
+      MOCK_RATE_500: ${MOCK_RATE_500:-0}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+  connector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      mock-server:
+        condition: service_healthy
+    network_mode: "service:mock-server"
+    environment:
+      PAYSTUB_API_KEY: ${PAYSTUB_API_KEY:-paystub-test-key}
+      GITLIKE_TOKEN: ${GITLIKE_TOKEN:-gitlike-test-token}
+      SHEETSY_CLIENT_ID: ${SHEETSY_CLIENT_ID:-sheetsy-client-id}
+      SHEETSY_CLIENT_SECRET: ${SHEETSY_CLIENT_SECRET:-sheetsy-client-secret}
+      SHEETSY_REFRESH_TOKEN: ${SHEETSY_REFRESH_TOKEN:-sheetsy-refresh-token}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-4-hydrogen}
+    volumes:
+      - ./connectors:/app/connectors
+      - ./data:/app/data
+      - ./benchmarks:/app/benchmarks
+    entrypoint: ["connector"]
+    command: ["run", "paystub", "--db", "/app/data/connector.duckdb"]

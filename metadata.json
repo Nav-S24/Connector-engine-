@@ -1,0 +1,6 @@
+{
+  "name": "Connector Platform",
+  "description": "Async config-driven data connector engine with AI generation and self-healing repair.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

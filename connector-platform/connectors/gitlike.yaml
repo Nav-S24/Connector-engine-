@@ -1,0 +1,25 @@
+name: gitlike
+base_url: http://localhost:8000/gitlike
+rate_limit: 20
+max_concurrency: 4
+auth:
+  type: bearer
+  env_var: GITLIKE_TOKEN
+streams:
+  - name: repos
+    path: /v1/repos
+    method: GET
+    records_path: result.items
+    primary_key: id
+    pagination:
+      type: offset
+      offset_param: offset
+      limit_param: limit
+      page_size: 50
+      total_path: meta.total
+    schema:
+      id: integer
+      name: string
+      stars: integer
+      private: boolean
+      updated_at: string

@@ -1,0 +1,11 @@
+{
+  "connector-platform/tests/test_auth.py::test_api_key_auth_header": true,
+  "connector-platform/tests/test_auth.py::test_api_key_auth_missing_env_raises": true,
+  "connector-platform/tests/test_auth.py::test_bearer_auth_header": true,
+  "connector-platform/tests/test_auth.py::test_bearer_auth_empty_raises": true,
+  "connector-platform/tests/test_engine.py::test_engine_runs_paystub_and_is_idempotent": true,
+  "connector-platform/tests/test_engine.py::test_engine_runs_gitlike_offset_nested_envelope": true,
+  "connector-platform/tests/test_engine.py::test_engine_unauthorized_fails_cleanly": true,
+  "connector-platform/tests/test_retry.py::test_request_with_retry_honours_retry_after_and_5xx": true,
+  "connector-platform/tests/test_retry.py::test_request_with_retry_exhaustion_raises": true
+}

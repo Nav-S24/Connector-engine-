@@ -1,0 +1,28 @@
+name: sheetsy
+base_url: http://localhost:8000/sheetsy
+rate_limit: 20
+max_concurrency: 4
+auth:
+  type: oauth2
+  token_url: http://localhost:8000/sheetsy/oauth/token
+  client_id_env_var: SHEETSY_CLIENT_ID
+  client_secret_env_var: SHEETSY_CLIENT_SECRET
+  refresh_token_env_var: SHEETSY_REFRESH_TOKEN
+streams:
+  - name: sheets
+    path: /v1/sheets
+    method: GET
+    records_path: rows
+    primary_key: id
+    pagination:
+      type: link_header
+      page_size_param: limit
+      page_size: 40
+    incremental:
+      cursor_field: updated_at
+      request_param: updated_after
+    schema:
+      id: string
+      title: string
+      row_count: integer
+      updated_at: string

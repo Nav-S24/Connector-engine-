@@ -1,0 +1,29 @@
+name: paystub
+base_url: http://localhost:8000/paystub
+rate_limit: 20
+max_concurrency: 4
+auth:
+  type: api_key
+  header: X-API-Key
+  env_var: PAYSTUB_API_KEY
+streams:
+  - name: charges
+    path: /v1/charges
+    method: GET
+    records_path: data
+    primary_key: id
+    pagination:
+      type: cursor
+      cursor_param: starting_after
+      cursor_field: id
+      page_size_param: limit
+      page_size: 100
+      has_more_path: has_more
+    incremental:
+      cursor_field: created
+      request_param: created_gte
+    schema:
+      id: string
+      amount: integer
+      currency: string
+      created: integer

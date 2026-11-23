@@ -1,0 +1,265 @@
+scenarios:
+  # --- Generation scenarios (1-6) ---
+  - id: gen_01_paystub_openapi
+    kind: generate
+    service: paystub
+    connector_name: paystub
+    base_url: http://mockserver/paystub
+    stream_hints: [charges]
+    spec_type: openapi
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 40
+
+  - id: gen_02_gitlike_openapi
+    kind: generate
+    service: gitlike
+    connector_name: gitlike
+    base_url: http://mockserver/gitlike
+    stream_hints: [repos]
+    spec_type: openapi
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 35
+
+  - id: gen_03_sheetsy_markdown
+    kind: generate
+    service: sheetsy
+    connector_name: sheetsy
+    base_url: http://mockserver/sheetsy
+    stream_hints: [sheets]
+    spec_type: markdown
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 30
+
+  - id: gen_04_paystub_markdown_retry
+    kind: generate
+    service: paystub
+    connector_name: paystub
+    base_url: http://mockserver/paystub
+    stream_hints: [charges]
+    spec_type: markdown
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 40
+
+  - id: gen_05_gitlike_markdown
+    kind: generate
+    service: gitlike
+    connector_name: gitlike
+    base_url: http://mockserver/gitlike
+    stream_hints: [repos]
+    spec_type: markdown
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 35
+
+  - id: gen_06_adversarial_bad_auth
+    kind: generate
+    service: paystub
+    connector_name: paystub
+    base_url: http://mockserver/paystub
+    stream_hints: [charges]
+    spec_type: markdown
+    expected_accepted: false
+    force_invalid: true
+    expected_records: 0
+
+  # --- Repair scenarios: Paystub (7-13) ---
+  - id: rep_07_paystub_rename_amount
+    kind: repair
+    service: paystub
+    description: Rename field amount -> amount_cents
+    mutation:
+      rename_fields:
+        amount: amount_cents
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 40
+
+  - id: rep_08_paystub_retype_amount_string
+    kind: repair
+    service: paystub
+    description: Breaking type change amount integer -> string
+    mutation:
+      retype_fields:
+        amount: string
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 40
+
+  - id: rep_09_paystub_remove_currency
+    kind: repair
+    service: paystub
+    description: Remove currency field from response
+    mutation:
+      remove_fields: [currency]
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 40
+
+  - id: rep_10_paystub_add_fee_cents
+    kind: repair
+    service: paystub
+    description: Additive field fee_cents introduced
+    mutation:
+      add_fields:
+        fee_cents: 35
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 40
+
+  - id: rep_11_paystub_records_path_move
+    kind: repair
+    service: paystub
+    description: Move records list from data -> payload.charges
+    mutation:
+      records_path: payload.charges
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 40
+
+  - id: rep_12_paystub_cursor_param_rename
+    kind: repair
+    service: paystub
+    description: Rename query params starting_after -> after, limit -> per_page
+    mutation:
+      cursor_param: after
+      page_size_param: per_page
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 40
+
+  - id: rep_13_paystub_combined_rename_and_nest
+    kind: repair
+    service: paystub
+    description: Rename amount -> gross_amount and move data -> result.charges
+    mutation:
+      rename_fields:
+        amount: gross_amount
+      records_path: result.charges
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 40
+
+  # --- Repair scenarios: Gitlike (14-19) ---
+  - id: rep_14_gitlike_rename_stars
+    kind: repair
+    service: gitlike
+    description: Rename stars -> stargazers_count
+    mutation:
+      rename_fields:
+        stars: stargazers_count
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 35
+
+  - id: rep_15_gitlike_retype_private
+    kind: repair
+    service: gitlike
+    description: Breaking type change private boolean -> string
+    mutation:
+      retype_fields:
+        private: string
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 35
+
+  - id: rep_16_gitlike_add_language
+    kind: repair
+    service: gitlike
+    description: Additive field language introduced
+    mutation:
+      add_fields:
+        language: python
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 35
+
+  - id: rep_17_gitlike_remove_updated_at
+    kind: repair
+    service: gitlike
+    description: Remove updated_at field
+    mutation:
+      remove_fields: [updated_at]
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 35
+
+  - id: rep_18_gitlike_records_path_move
+    kind: repair
+    service: gitlike
+    description: Move records list from result.items -> data.repositories
+    mutation:
+      records_path: data.repositories
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 35
+
+  - id: rep_19_gitlike_offset_param_rename
+    kind: repair
+    service: gitlike
+    description: Rename offset -> skip and limit -> count
+    mutation:
+      offset_param: skip
+      page_size_param: count
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 35
+
+  # --- Repair scenarios: Sheetsy (20-23) ---
+  - id: rep_20_sheetsy_rename_title
+    kind: repair
+    service: sheetsy
+    description: Rename title -> sheet_title
+    mutation:
+      rename_fields:
+        title: sheet_title
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 30
+
+  - id: rep_21_sheetsy_retype_row_count
+    kind: repair
+    service: sheetsy
+    description: Breaking type change row_count integer -> string
+    mutation:
+      retype_fields:
+        row_count: string
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 30
+
+  - id: rep_22_sheetsy_records_path_move
+    kind: repair
+    service: sheetsy
+    description: Move records list from rows -> data.sheets
+    mutation:
+      records_path: data.sheets
+    expected_accepted: true
+    simulate_attempt1_error: true
+    expected_records: 30
+
+  - id: rep_23_sheetsy_add_and_remove
+    kind: repair
+    service: sheetsy
+    description: Add owner string and remove title field
+    mutation:
+      add_fields:
+        owner: finance
+      remove_fields: [title]
+    expected_accepted: true
+    simulate_attempt1_error: false
+    expected_records: 30
+
+  # --- Adversarial validation gate scenario (24) ---
+  - id: rep_24_adversarial_missing_pk
+    kind: repair
+    service: paystub
+    description: Broken mutation removes primary key id (must be rejected by gate)
+    mutation:
+      remove_fields: [id]
+    expected_accepted: false
+    force_invalid: true
+    expected_records: 0
